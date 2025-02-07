@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>MR-AI_BOT💐💐 Chat</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: #fff;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            margin-top: 60px;
+            margin-bottom: 60px;
+            overflow: hidden;
+        }
+
+        .chat-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-end;
+            max-width: 80%;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .bubble {
+            padding: 10px 15px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            color: #000;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+            max-width: calc(100% - 50px);
+        }
+
+        .message.user .bubble {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fff;
+            padding: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .bottom-bar input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            font-size: 1em;
+            background-color: #f9f9f9;
+            color: #000;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        .bottom-bar button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        MR-AI_BOSS 💚💚
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-container">
+        <div id="chat-content" class="chat-content"></div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <form id="chat-form" class="bottom-bar">
+        <input id="user-input" type="text" placeholder="আপনার বার্তা টাইপ করুন... ✍️✍️" autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+
+<script>
+    const chatContent = document.getElementById("chat-content");
+    const chatForm = document.getElementById("chat-form");
+    const userInput = document.getElementById("user-input");
+
+    const chatGPTLogo = "https://i.ibb.co.com/JR52HSH1/image.jpg";
+    const userLogo = "https://ibb.co.com/bgzLXGX0";
+
+    function createMessageElement(message, fromUser) {
+        const messageWrapper = document.createElement("div");
+        messageWrapper.classList.add("message", fromUser ? "user" : "bot");
+
+        const avatar = document.createElement("img");
+        avatar.src = fromUser ? userLogo : chatGPTLogo;
+        avatar.alt = fromUser ? "User" : "ChatGPT";
+        avatar.classList.add("avatar");
+
+        const bubble = document.createElement("div");
+        bubble.classList.add("bubble");
+        bubble.innerHTML = message;
+
+        messageWrapper.appendChild(fromUser ? bubble : avatar);
+        messageWrapper.appendChild(fromUser ? avatar : bubble);
+
+        return messageWrapper;
+    }
+
+    async function fetchResponse(userMessage) {
+        try {
+            const response = await fetch("https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5IZkJDMlNyYUVUTjIyZVN3UWFNX3BFTU85SWpCM2NUMUk3T2dxejhLSzBhNWNMMXNzZlp3c09BSTR6YW1Sc1BmdGNTVk1GY0liT1RoWDZZX1lNZlZ0Z1dqd3c9PQ==", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt: userMessage })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch response');
+            }
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                return data.text;
+            } else {
+                throw new Error('Error in response data');
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            return "There was an error. Please try again later.";
+        }
+    }
+
+    chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const userMessage = userInput.value.trim();
+        if (!userMessage) {
+            return;
+        }
+
+        chatContent.appendChild(createMessageElement(userMessage, true));
+        userInput.value = "";
+
+        const botResponse = await fetchResponse(userMessage);
+        chatContent.appendChild(createMessageElement(botResponse, false));
+        chatContent.scrollTop = chatContent.scrollHeight;
+    });
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const welcomeMessage = createMessageElement(" হ্যালো কিভাবে আপনাকে সাহায্য করতে পারি ? 😇😇", false);
+            chatContent.appendChild(welcomeMessage);
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }, 100);
+    });
+</script>
+
+</body>
+</html>
